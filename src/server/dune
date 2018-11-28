@@ -1,4 +1,5 @@
 (executable
   (name server)
+  (public_name server)
   (libraries graphql graphql-lwt geotypes)
 )

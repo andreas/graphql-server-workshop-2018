@@ -1,0 +1,29 @@
+{
+  "name": "graphql-server-workshop-2018",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}"
+  },
+  "dependencies": {
+    "ocaml": "~4.6.0",
+    "@opam/dune": "*",
+    "@opam/cohttp-lwt-unix": "*",
+    "@opam/ppx_deriving_yojson": "*",
+    "@opam/graphql": "*",
+    "@opam/graphql-lwt": "*",
+    "@esy-ocaml/reason": "*",
+    "refmterr": "*"
+  },
+  "resolutions:NOTE": "This is how you override dependency resolution",
+  "resolutions": {
+    "@esy-ocaml/esy-installer": "0.0.1",
+    "@opam/menhir": "20171013",
+    "@opam/re": "1.8.0"
+  },
+  "devDependencies": {
+    "@esy-ocaml/merlin": "*",
+    "ocaml": "~4.6.0"
+  }
+}

@@ -1,3 +1,9 @@
 .DS_Store
 _build
+_release
+_esy
 .merlin
+node_modules/
+*.byte
+*.native
+*.install
