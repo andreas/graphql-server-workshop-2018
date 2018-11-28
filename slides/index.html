@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Type-Safe GraphQL Server with GADTs</title>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Roboto Slab', serif;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      pre {
+        margin: 0;
+      }
+
+      .remark-slide-content h1 {
+        font-size: 42px;
+      }
+
+      .remark-slide-content {
+        padding: 1em 1em;
+      }
+
+      .two-column .column, .two-column > pre {
+        width: 48%;
+        float: left;
+        margin-right: 1%;
+      }
+
+      .three-column .column, .three-column pre {
+        width: 30%;
+        float: left;
+        margin-right: 1%;
+      }
+
+      .four-column .column, .four-column pre {
+        width: 22%;
+        float: left;
+        margin-right: 1%;
+      }
+
+      ul p {
+        margin: 0 0 1em 0;
+      }
+
+      .flex {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        height: 500px;
+      }
+
+      .flex pre {
+        width: 49%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# GraphQL Servers in ReasonML/OCaml
+
+---
+
+class: center, middle
+
+Andreas Garnæs<br/>
+`@andreas` (github)<br/>
+`@cuvius` (twitter)<br/>
+
+<img src="images/zendesk-wordmark.svg" width=100>
+
+---
+
+class: center, middle
+
+<img src="images/graphql.svg" />
+
+---
+
+class: center, middle
+
+![](https://reasonml.github.io/img/reason.svg)
+
+---
+
+class: center, middle
+
+![](https://khoanguyen.me/reasonml-toolchain/reasonml-architechture.png)
+
+---
+
+# Resources
+
+- [OCaml cheat sheet](http://www.ocamlpro.com/files/ocaml-lang.pdf)
+- [Standard library cheat sheet](http://www.ocamlpro.com/files/ocaml-stdlib.pdf)
+- [Reason Syntax cheat sheet](https://reasonml.github.io/docs/en/syntax-cheatsheet)
+- [`ocaml-graphql-server` documentation](https://andreas.github.io/ocaml-graphql-server/graphql-lwt/Graphql_lwt/Schema/index.html)
+- [`ocaml-graphql-server` examples](https://github.com/andreas/ocaml-graphql-server#examples)
+- [Sketch.sh (Online REPL)](https://sketch.sh/)
+
+---
+
+# Task 1
+
+1. Check out the workshop Git repo
+   ```
+   git checkout http://github.com/andreas/reason-graphql-workshop
+   ```
+1. Compile and run the server
+   ```
+   dune exec src/server/server.exe
+   ```
+1. Open `localhost:8080/graphql` in a browser
+
+---
+
+class: two-column
+
+# Objects and Fields
+
+```ocaml
+Schema.(obj "Address"
+  ~fields:(fun _ -> [
+    (* fields go here *)
+  ])
+)
+```
+
+--
+
+```ocaml
+field "street"
+  ~typ:(non_null string)
+  ~args:[]
+  ~resolve:(fun () address ->
+    address.Address.street
+  )
+```
+
+---
+
+# Task 2
+
+1. Add the following fields to the type `Address`:
+  - `street_number`
+  - `postal_code`
+  - `city`
+  - `floor`
+  - `door`
+2. Create a new GraphQL object `Location` with fields `lat` and `lng`.
+3. Add a field `location` to `Address` of type `Location`.
+
+---
+
+# Promises
+
+A value of type `a Lwt.t` is a _promise_ for a value of type `'a`. For example `int Lwt.t` will resolve to an `int`.
+
+--
+
+You can create a promise with `Lwt.return`:
+
+```ocaml
+Lwt.return 1 (* int Lwt.t *)
+```
+
+--
+
+You bind a callback to the promise using `>>=`:
+
+```ocaml
+Lwt.return 1 >>= fun n ->
+Format.printf "Promise resolved to %d" n
+```
+
+---
+
+# Result type
+
+Operations that can fail typically return a `result` value.
+
+```ocaml
+type ('a, 'b) result =
+| Ok of 'a
+| Error of 'b
+```
+
+--
+
+```ocaml
+(* safe_div : int -> int -> (int, string) result *)
+let safe_div a b =
+  if b = 0 then
+    Error "Cannot divide by zero"
+  else
+    Ok (a / b)
+```
+
+--
+
+Use `match` on the result to extract the value:
+
+```ocaml
+match safe_div 8 2 with
+| Ok n -> Format.printf "Result is %d" n
+| Error err -> Format.printf "Error: %s" err
+```
+
+---
+
+# Arguments
+
+```ocaml
+field "echo"
+  ~typ:string
+  ~args:Arg.[
+    arg "message" ~typ:string
+  ]
+  ~resolve:(fun () () msg ->
+    Format.sprintf "You said: %s" msg
+  )
+```
+
+---
+
+# IO fields
+
+```ocaml
+io_field "sleep"
+  ~typ:(non_null string)
+  ~args:Arg.[
+    arg "duration" ~typ:float;
+  ]
+  ~resolve:(fun ctx () ->
+    Lwt_unix.sleep duration >>= fun () ->
+    let msg = Format.sprintf "I slept for %f seconds" duration in
+    Lwt.return (Ok msg)
+  )
+```
+
+---
+
+# `Dawa`
+
+```ocaml
+val search : string -> (Address.t list, string) Lwt.t
+```
+
+--
+
+Add `dawa` to the list of libraries in `src/server/dune`:
+
+```diff
+-  (libraries graphql graphql-lwt geotypes)
++  (libraries graphql graphql-lwt geotypes dawa)
+```
+
+---
+
+# Task 3
+
+Add a field `searchAddress(query : String!)` to the root object, which calls `DAWA.search` to return a list of addresses.
+
+---
+
+# `Filarkiv`
+
+```ocaml
+val search : tenant_id:string -> id:int -> (Document.t list, string) Lwt.t
+```
+
+--
+
+Add `filarkiv` to the list of libraries in `src/server/dune`:
+
+```diff
+-  (libraries graphql graphql-lwt geotypes dawa)
++  (libraries graphql graphql-lwt geotypes dawa filarkiv)
+```
+
+---
+
+# Task 4
+
+1. Create a new GraphQL object type to represent documents from Filarkiv.
+2. Add a new field `documents` to `Address`, which calls `Filarkiv.search`.
+3. Enjoy as GraphQL is making a ton of queries on your behalf!
+
+---
+
+class: middle, center
+
+# Thanks!
+
+    </textarea>
+    <script src="remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        ratio: '16:9',
+        highlightLanguage: true,
+        highlightLines: true,
+        highlightSpans: true,
+        excludedClasses: ['skip'],
+        slideNumberFormat: ''
+      });
+    </script>
+  </body>
+</html>
