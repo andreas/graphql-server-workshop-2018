@@ -1,4 +1,5 @@
 (executable
   (name server)
+  (public_name graphql-server-workshop-2018)
   (libraries graphql graphql-lwt geotypes)
 )
