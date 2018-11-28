@@ -4,12 +4,12 @@ This material is intended for the [ReasonML CPH meetup Nov 28th 2018](https://ww
 
 ## Setup (esy)
 
-- yarn global add esy@next / npm install -g esy@next
-- esy
+- `yarn global add esy@next / npm install -g esy@next`
+- `esy`
 
 ## Run (esy)
 
-- esy x graphql-server-workshop-2018
+- `esy x server`
 
 ## Setup (Trusty ol' way)
 
@@ -23,7 +23,7 @@ Installation instructions for Reason: https://reasonml.github.io/docs/en/install
 
 ## Run (Trusty ol' way)
 
-- dune exec src/server/server.exe
+- `dune exec src/server/server.exe`
 
 ---
 
