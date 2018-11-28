@@ -4,7 +4,7 @@ This material is intended for the [ReasonML CPH meetup Nov 28th 2018](https://ww
 
 ## Setup (esy)
 
-- yarn global add esy / npm install -g esy
+- yarn global add esy@next / npm install -g esy@next
 - esy
 
 ## Run (esy)
