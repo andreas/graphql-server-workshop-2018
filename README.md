@@ -2,6 +2,15 @@
 
 This material is intended for the [ReasonML CPH meetup Nov 28th 2018](https://www.meetup.com/ReasonML-CPH/events/256170465/).
 
+## Slides
+
+- [OCaml slides](https://andreas.github.io/graphql-server-workshop-2018/slides)
+- [Reason slides](https://andreas.github.io/graphql-server-workshop-2018/slides/index.reason.html)
+
+## Editor
+
+We recommend installing [VSCode](https://code.visualstudio.com/) and a suitable extension for OCaml/ReasonML.
+
 ## Reason
 
 Installation instructions for Reason: https://reasonml.github.io/docs/en/installation
@@ -51,17 +60,6 @@ opam install dune graphql-lwt ppx_deriving_yojson
 ```
 dune exec src/server/server.exe
 ```
-
-## Editor
-
-We recommend installing [VSCode](https://code.visualstudio.com/) and a suitable extension for OCaml/ReasonML.
-
-
-
-## Slides
-
-- [OCaml slides](https://andreas.github.io/graphql-server-workshop-2018/slides)
-- [Reason slides](https://andreas.github.io/graphql-server-workshop-2018/slides/index.reason.html)
 
 ## Resources
 
