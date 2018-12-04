@@ -21,8 +21,8 @@ let address = Schema.(obj "Address"
     field "street"
       ~typ:(non_null string)
       ~args:[]
-      ~resolve:(fun () address ->
-        address.Address.street
+      ~resolve:(fun () (addr : Address.t) ->
+        addr.street
       )
   ])
 )

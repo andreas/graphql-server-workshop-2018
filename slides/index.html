@@ -161,7 +161,7 @@ field "street"
 
 # Promises
 
-A value of type `a Lwt.t` is a _promise_ for a value of type `'a`. For example `int Lwt.t` will resolve to an `int`.
+A value of type `'a Lwt.t` is a _promise_ for a value of type `'a`. For example `int Lwt.t` will resolve to an `int`.
 
 --
 
@@ -176,8 +176,11 @@ Lwt.return 1 (* int Lwt.t *)
 You bind a callback to the promise using `>>=`:
 
 ```ocaml
-Lwt.return 1 >>= fun n ->
-Format.printf "Promise resolved to %d" n
+open Lwt.Infix
+
+let () =
+  Lwt.return 1 >>= fun n ->
+  Format.printf "Promise resolved to %d" n
 ```
 
 ---
@@ -219,9 +222,9 @@ match safe_div 8 2 with
 
 ```ocaml
 field "echo"
-  ~typ:string
+  ~typ:(non_null string)
   ~args:Arg.[
-    arg "message" ~typ:string
+    arg "message" ~typ:(non_null string)
   ]
   ~resolve:(fun () () msg ->
     Format.sprintf "You said: %s" msg
@@ -236,9 +239,9 @@ field "echo"
 io_field "sleep"
   ~typ:(non_null string)
   ~args:Arg.[
-    arg "duration" ~typ:float;
+    arg "duration" ~typ:(non_null float);
   ]
-  ~resolve:(fun ctx () ->
+  ~resolve:(fun () () duration ->
     Lwt_unix.sleep duration >>= fun () ->
     let msg = Format.sprintf "I slept for %f seconds" duration in
     Lwt.return (Ok msg)
@@ -250,7 +253,11 @@ io_field "sleep"
 # `Dawa`
 
 ```ocaml
-val search : string -> (Address.t list, string) Lwt.t
+module Dawa : sig
+  val search : string -> (Address.t list, string) result Lwt.t
+end = struct
+  (* ... *)
+end
 ```
 
 --
@@ -262,18 +269,32 @@ Add `dawa` to the list of libraries in `src/server/dune`:
 +  (libraries graphql graphql-lwt geotypes dawa)
 ```
 
+--
+
+Enable SSL connections (as a client):
+
+```
+opam install lwt_ssl
+(* OR *)
+opam install tls
+```
+
 ---
 
 # Task 3
 
-Add a field `searchAddress(query : String!)` to the root object, which calls `DAWA.search` to return a list of addresses.
+Add a field `searchAddress(query : String!)` to the root object, which calls `Dawa.search` to return a list of addresses.
 
 ---
 
 # `Filarkiv`
 
 ```ocaml
-val search : tenant_id:string -> id:int -> (Document.t list, string) Lwt.t
+module Filarkiv : sig
+  val search : tenant_id:int -> id:string -> (Document.t list, string) result Lwt.t
+end = struct
+  (* ... *)
+end
 ```
 
 --
