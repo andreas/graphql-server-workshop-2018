@@ -29,6 +29,23 @@ Installation instructions for Reason: https://reasonml.github.io/docs/en/install
 
 We recommend installing [VSCode](https://code.visualstudio.com/) and a suitable extension for OCaml/ReasonML.
 
+If you want to use OCaml, delete the folder `reason` and rename the folder `ocaml` to `src`:
+
+```
+rm -r reason && mv ocaml src
+```
+
+If you want to use Reason, delete the folder `ocaml` and rename the folder `reason` to `src`:
+
+```
+rm -r ocaml && mv reason src
+```
+
+## Slides
+
+- [OCaml slides](https://andreas.github.io/graphql-server-workshop-2018/slides)
+- [Reason slides](https://andreas.github.io/graphql-server-workshop-2018/slides/index.reason.html)
+
 ## Resources
 
 - [OCaml cheat sheet](http://www.ocamlpro.com/files/ocaml-lang.pdf)

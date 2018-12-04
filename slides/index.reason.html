@@ -64,9 +64,9 @@
 
 class: center, middle
 
-# GraphQL Servers in OCaml
+# GraphQL Servers in Reason
 
-([click for Reason slides](index.reason.html))
+([click for OCaml slides](index.html))
 
 ---
 
@@ -117,7 +117,7 @@ class: center, middle
    ```
 1. Compile and run the server
    ```
-   dune exec src/server/server.exe
+   dune exec reason/server/server.exe
    ```
 1. Open `localhost:8080/graphql` in a browser
 
@@ -127,23 +127,27 @@ class: two-column
 
 # Objects and Fields
 
-```ocaml
-Schema.(obj "Address"
-  ~fields:(fun _ -> [
-    (* fields go here *)
-  ])
-)
+```reason
+Schema.(
+  obj("Address", ~fields=_ =>
+    /* fields go here */
+    []
+  )
+);
+
 ```
 
 --
 
-```ocaml
-field "street"
-  ~typ:(non_null string)
-  ~args:[]
-  ~resolve:(fun () address ->
-    address.Address.street
-  )
+```reason
+field(
+  "street",
+  ~typ=non_null(string),
+  ~args=[],
+  ~resolve=((), address) =>
+  address.Address.street
+);
+
 ```
 
 ---
@@ -169,20 +173,22 @@ A value of type `'a Lwt.t` is a _promise_ for a value of type `'a`. For example 
 
 You can create a promise with `Lwt.return`:
 
-```ocaml
-Lwt.return 1 (* int Lwt.t *)
+```reason
+Lwt.return(1); /* Lwt.t(int) */
+
 ```
 
 --
 
 You bind a callback to the promise using `>>=`:
 
-```ocaml
-open Lwt.Infix
+```reason
+open Lwt.Infix;
 
 let () =
-  Lwt.return 1 >>= fun n ->
-  Format.printf "Promise resolved to %d" n
+  Lwt.return(1)
+  >>= (n => Format.printf("Promise resolved to %d", n));
+
 ```
 
 ---
@@ -191,75 +197,90 @@ let () =
 
 Operations that can fail typically return a `result` value.
 
-```ocaml
-type ('a, 'b) result =
-| Ok of 'a
-| Error of 'b
+```reason
+type result('a, 'b) =
+  | Ok('a)
+  | Error('b);
+
 ```
 
 --
 
-```ocaml
-(* safe_div : int -> int -> (int, string) result *)
-let safe_div a b =
-  if b = 0 then
-    Error "Cannot divide by zero"
-  else
-    Ok (a / b)
+```reason
+/* safe_div : int -> int -> (int, string) result */
+let safe_div = (a, b) =>
+  if (b == 0) {
+    Error("Cannot divide by zero");
+  } else {
+    Ok(a / b);
+  };
+
 ```
 
 --
 
 Use `match` on the result to extract the value:
 
-```ocaml
-match safe_div 8 2 with
-| Ok n -> Format.printf "Result is %d" n
-| Error err -> Format.printf "Error: %s" err
+```reason
+switch (safe_div(8, 2)) {
+| Ok(n) => Format.printf("Result is %d", n)
+| Error(err) => Format.printf("Error: %s", err)
+};
+
 ```
 
 ---
 
 # Arguments
 
-```ocaml
-field "echo"
-  ~typ:(non_null string)
-  ~args:Arg.[
-    arg "message" ~typ:(non_null string)
-  ]
-  ~resolve:(fun () () msg ->
-    Format.sprintf "You said: %s" msg
-  )
+```reason
+field(
+  "echo",
+  ~typ=non_null(string),
+  ~args=Arg.[arg("message", ~typ=non_null(string))],
+  ~resolve=((), (), msg) =>
+  Format.sprintf("You said: %s", msg)
+);
+
 ```
 
 ---
 
 # IO fields
 
-```ocaml
-io_field "sleep"
-  ~typ:(non_null string)
-  ~args:Arg.[
-    arg "duration" ~typ:(non_null float);
-  ]
-  ~resolve:(fun () () duration ->
-    Lwt_unix.sleep duration >>= fun () ->
-    let msg = Format.sprintf "I slept for %f seconds" duration in
-    Lwt.return (Ok msg)
+```reason
+io_field(
+  "sleep",
+  ~typ=non_null(string),
+  ~args=Arg.[arg("duration", ~typ=non_null(float))],
+  ~resolve=((), (), duration) =>
+  Lwt_unix.sleep(duration)
+  >>= (
+    () => {
+      let msg =
+        Format.sprintf(
+          "I slept for %f seconds",
+          duration,
+        );
+      Lwt.return(Ok(msg));
+    }
   )
+);
+
 ```
 
 ---
 
 # `Dawa`
 
-```ocaml
-module Dawa : sig
-  val search : string -> (Address.t list, string) result Lwt.t
-end = struct
-  (* ... *)
-end
+```reason
+module Dawa: {
+  let search:
+    string => Lwt.t(result(list(Address.t), string));
+} = {
+  /* ... */
+};
+
 ```
 
 --
@@ -291,12 +312,15 @@ Add a field `searchAddress(query : String!)` to the root object, which calls `Da
 
 # `Filarkiv`
 
-```ocaml
-module Filarkiv : sig
-  val search : tenant_id:int -> id:string -> (Document.t list, string) result Lwt.t
-end = struct
-  (* ... *)
-end
+```reason
+module Filarkiv: {
+  let search:
+    (~tenant_id: int, ~id: string) =>
+    Lwt.t(result(list(Document.t), string));
+} = {
+  /* ... */
+};
+
 ```
 
 --
