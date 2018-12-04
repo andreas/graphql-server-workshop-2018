@@ -1,0 +1,6 @@
+(library
+  (name dawa)
+  (flags (:standard -w -39))
+  (preprocess (pps ppx_deriving_yojson))
+  (libraries geotypes cohttp-lwt-unix ppx_deriving_yojson.runtime)
+)
