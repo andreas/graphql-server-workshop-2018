@@ -1,8 +1,3 @@
-type location = {
-  lat : float;
-  lng : float;
-}
-
 type t = {
   id : string;
   tenant_id : int;
